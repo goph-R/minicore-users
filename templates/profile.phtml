@@ -1,0 +1,5 @@
+<?php use_layout(':user/layout') ?>
+<?php start_block('user_content') ?>
+<h1><?= text('user', 'profile') ?></h1>
+<div><?= text('user', 'last_login') ?>: <?= $user->getFormattedLastLogin() ?></div>
+<?php end_block() ?>
