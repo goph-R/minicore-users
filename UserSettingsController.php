@@ -36,14 +36,17 @@ class UserSettingsController extends Controller {
         $messages = [];
         if ($form->getValue('old_password') && $form->getValue('password')) {
             $this->userService->changePassword($user->get('id'), $form->getValue('password'));
-            $messages[] = $this->translation->get('user', 'password_changed');
+            $messages[] = $this->getMessage('info', 'password_changed');
         }
         $email = $form->getValue('email');
         if ($email != $user->get('email')) {
-            $hash = $this->userService->saveNewEmail($user->get('id'), $email);
-            if ($hash && $this->userService->sendNewAddressEmail($email, $hash)) {
-                $messages[] = $this->translation->get('user', 'new_email_was_set');
-            }            
+            $hash = $this->userService->setNewEmail($user, $email);
+            if ($this->userService->sendNewAddressEmail($email, $hash)) {
+                $user->save();
+                $messages[] = $this->getMessage('info', 'new_email_was_set');
+            } else {
+                $messages[] = $this->getMessage('error', 'couldnt_send_email');
+            }  
         }
         return $messages;
     }
@@ -53,15 +56,20 @@ class UserSettingsController extends Controller {
             $this->redirect('');
         }
         $user = $this->userService->getCurrentUser();
-        $data = ['title' => $this->translation->get('user', 'new_email_address')];
         if ($this->userService->activateNewEmail($user->get('id'), $hash)) {
-            $data['messageType'] = 'info';
-            $data['message'] = $this->translation->get('user', 'email_activation_successful');
+            $message = $this->getMessage('info', 'email_activation_successful');
         } else {
-            $data['messageType'] = 'error';
-            $data['message'] = $this->translation->get('user', 'email_activation_not_found');
+            $message = $this->getMessage('error', 'email_activation_not_found');
         }
-        $this->render(':user/message', $data);
+        $message['title'] = $this->translation->get('user', 'new_email_address');
+        $this->render(':user/message', $message);
+    }
+    
+    private function getMessage($type, $text) {
+        return [
+            'type' => $type,
+            'text' => $this->translation->get('user', $text)
+        ];
     }
     
 }

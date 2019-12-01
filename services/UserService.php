@@ -178,15 +178,10 @@ class UserService {
         return true;
     }
 
-    public function saveNewEmail($id, $email) {
-        $user = $this->users->findById($id);
-        if (!$user) {
-            return null;
-        }
+    public function setNewEmail(User $user, $email) {
         $hash = $this->hash($email);
         $user->set('new_email', $email);
         $user->set('new_email_hash', $hash);
-        $user->save();
         return $hash;
     }
 
@@ -274,18 +269,12 @@ class UserService {
      * @param boolean
      * @return Form
      */
-    public function createSettingsForm(User $user, $useEmailDesc=true) {
+    public function createSettingsForm(User $user, $useEmailDescription=true) {
         // TODO: a post validator for the passwords
-        $emailDesc = '';
-        if ($useEmailDesc) {
-            $emailDesc = $this->translation->get('user', 'email_change_description');
-            if ($user->get('new_email')) {
-                $emailDesc = $this->translation->get('user', 'waits_for_activation', ['email' => $user->get('new_email')]);
-            }
-        }
+        $emailDescription = $this->getEmailDescription($user, $useEmailDescription);
         /** @var Form $form */
         $form = $this->framework->create('Form', ['settings']);
-        $form->addInput('Email', ['TextInput', 'email', $user->get('email')], $emailDesc);
+        $form->addInput('Email', ['TextInput', 'email', $user->get('email')], $emailDescription);
         $form->addValidator('email', 'EmailValidator');
         $form->addValidator('email', ['EmailExistsExceptValidator', $user->get('id')]);
         $form->addInput(['user', 'old_password'], ['PasswordInput', 'old_password'], ['user', 'set_if_change_password']);
@@ -300,5 +289,17 @@ class UserService {
         $form->setRequired('password_again', false);
         return $form;
     }
-
+    
+    private function getEmailDescription(User $user, $useEmailDescription) {
+        if (!$useEmailDescription) {
+            return '';
+        }
+        $newEmail = $user->get('new_email');
+        if (!$newEmail) {
+            $result = $this->translation->get('user', 'email_change_description');
+        } else {
+            $result = $this->translation->get('user', 'waits_for_activation', ['email' => $newEmail]);
+        }
+        return $result;
+    }
 }
