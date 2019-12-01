@@ -56,9 +56,9 @@ class UserForgotController extends Controller {
 
     private function message($type, $title, $message) {
         $this->render(':user/message', [
-            'title'       => $this->translation->get('user', $title),
-            'message'     => $this->translation->get('user', $message),
-            'messageType' => $type
+            'title' => $this->translation->get('user', $title),
+            'text' => $this->translation->get('user', $message),
+            'type' => $type
         ]);
     }
 
