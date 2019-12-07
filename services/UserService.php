@@ -1,6 +1,10 @@
 <?php
 
 class UserService {
+    
+    const CONFIG_USERS_REGISTER_DISABLED = 'users.register_disabled';
+    const CONFIG_LOGGED_IN_URL = 'users.logged_in_url';
+    const CONFIG_LOGGED_OUT_URL = 'users.logged_out_url';
 
     /** @var Config */
     protected $config;
@@ -19,6 +23,9 @@ class UserService {
 
     /** @var Framework */
     protected $framework;
+    
+    /** @var Router */
+    protected $router;
 
     /** @var Users */
     protected $users;
@@ -32,6 +39,7 @@ class UserService {
     public function __construct(Framework $framework) {
         $this->framework = $framework;
         $this->config = $framework->get('config');
+        $this->router = $framework->get('router');
         $this->userSession = $framework->get('userSession');
         $this->mailer = $framework->get('mailer');
         $this->translation = $framework->get('translation');
@@ -39,6 +47,10 @@ class UserService {
         $this->users = $framework->get('users');
         $this->anonymousUser = $framework->create('User');
         $this->rememberLogin();
+    }
+    
+    public function isRegisterDisabled() {
+        return $this->config->get(self::CONFIG_USERS_REGISTER_DISABLED);
     }
 
     public function hash($value) {
@@ -61,6 +73,23 @@ class UserService {
                 $this->doLogin($user);
             }
         }
+    }
+    
+    public function requireLogin() {
+        if ($this->userSession->isLoggedIn()) {
+            return;
+        }
+        $url = $this->router->getBaseUrl().$this->request->getUri();
+        $this->userSession->set('login_redirect_url', $url);
+        $this->framework->redirect('login');
+    }
+    
+    public function getLoggedInUrl() {
+        return $this->config->get(self::CONFIG_LOGGED_IN_URL);
+    }
+    
+    public function getLoggedOutUrl() {
+        return $this->config->get(self::CONFIG_LOGGED_OUT_URL);
     }
 
     public function login($email, $password, $remember) {

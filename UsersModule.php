@@ -2,12 +2,10 @@
 
 class UsersModule extends Module {
 
-    protected $framework;
     protected $id = 'minicore-users';
 
     public function __construct(Framework $framework) {
         parent::__construct($framework);
-        $this->framework = $framework;
         $framework->add([
             'users'                  => 'Users',
             'userService'            => 'UserService',

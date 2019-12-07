@@ -12,7 +12,7 @@ class UserLogoutController extends Controller {
 
     public function index() {
         $this->userService->logout();
-        $this->redirect('');
+        $this->redirect($this->userService->getLoggedOutUrl());
     }
 
 }

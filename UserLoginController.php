@@ -20,8 +20,9 @@ class UserLoginController extends Controller {
             $password = $form->getValue('password');
             $remember = $form->getValue('remember');
             if ($this->userService->login($email, $password, $remember)) {
-                $ref = $this->request->get('ref');
-                $this->redirect($ref);
+                $loginRedirect = $this->userSession->get('login_redirect');
+                $loggedInUrl = $this->userService->getLoggedInUrl();
+                $this->redirect($loginRedirect ? $loginRedirect : $loggedInUrl);
             } else {
                 $form->addError($this->translation->get('user', 'email_password_not_found'));
             }

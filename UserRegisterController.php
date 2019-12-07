@@ -8,6 +8,9 @@ class UserRegisterController extends Controller {
     public function __construct(Framework $framework) {
         parent::__construct($framework);
         $this->userService = $framework->get('userService');
+        if ($this->userService->isRegisterDisabled()) {
+            $this->redirect();
+        }
     }
 
     public function index() {
