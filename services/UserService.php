@@ -262,7 +262,8 @@ class UserService {
     public function createLoginForm() {
         /** @var Form $form */
         $form = $this->framework->create('Form', ['login']);
-        $form->addInput('Email', ['TextInput', 'email']);
+        $emailInput = $form->addInput('Email', ['TextInput', 'email']);
+        $emailInput->setAutocomplete(false);
         $form->addInput(['user', 'password'], ['PasswordInput', 'password']);
         $form->addInput('', ['CheckboxInput', 'remember', '1', ['user', 'remember_me']]);
         return $form;
@@ -287,7 +288,8 @@ class UserService {
     public function createForgotForm() {
         /** @var Form $form */
         $form = $this->framework->create('Form', ['forgot']);
-        $form->addInput('Email', ['TextInput', 'email']);
+        $emailInput = $form->addInput('Email', ['TextInput', 'email']);
+        $emailInput->setAutocomplete(false);
         $form->addValidator('email', 'EmailValidator');
         $form->addValidator('email', ['EmailExistsValidator', true]);
         return $form;
@@ -303,7 +305,8 @@ class UserService {
         $emailDescription = $this->getEmailDescription($user, $useEmailDescription);
         /** @var Form $form */
         $form = $this->framework->create('Form', ['settings']);
-        $form->addInput('Email', ['TextInput', 'email', $user->get('email')], $emailDescription);
+        $emailInput = $form->addInput('Email', ['TextInput', 'email', $user->get('email')], $emailDescription);
+        $emailInput->setAutocomplete(false);
         $form->addValidator('email', 'EmailValidator');
         $form->addValidator('email', ['EmailExistsExceptValidator', $user->get('id')]);
         $form->addInput(['user', 'old_password'], ['PasswordInput', 'old_password'], ['user', 'set_if_change_password']);
