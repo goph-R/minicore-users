@@ -253,9 +253,10 @@ class UserService {
         $form->addValidator('password', 'PasswordValidator');
         $form->addInput(['user', 'password_again'], ['PasswordInput', 'password_again']);
         $form->addValidator('password_again', ['SameValidator', $form, 'password']);
+        $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'registration')]);
         return $form;
     }
-
+    
     /**
      * @return Form
      */
@@ -266,9 +267,16 @@ class UserService {
         $emailInput->setAutocomplete(false);
         $form->addInput(['user', 'password'], ['PasswordInput', 'password']);
         $form->addInput('', ['CheckboxInput', 'remember', '1', ['user', 'remember_me']]);
+        $form->addInput('', ['SeparatorInput', 'forgot', $this->getLinkForForgottenPassword()]);
+        $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'login')]);
         return $form;
     }
 
+    protected function getLinkForForgottenPassword() {
+        $url = $this->router->getUrl('forgot');
+        return '<a href="'.$url.'">'.$this->translation->get('user', 'forgotten_password').'</a>';
+    }
+    
     /**
      * @return Form
      */
@@ -279,6 +287,7 @@ class UserService {
         $form->addInput(['user', 'password_again'], ['PasswordInput', 'password_again']);
         $form->addValidator('password', 'PasswordValidator');
         $form->addValidator('password_again', ['SameValidator', $form, 'password']);
+        $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'password_changing')]);
         return $form;
     }
 
@@ -292,6 +301,7 @@ class UserService {
         $emailInput->setAutocomplete(false);
         $form->addValidator('email', 'EmailValidator');
         $form->addValidator('email', ['EmailExistsValidator', true]);
+        $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'send')]);        
         return $form;
     }
 
@@ -319,10 +329,11 @@ class UserService {
         $form->addInput(['user', 'new_password_again'], ['PasswordInput', 'password_again']);
         $form->addValidator('password_again', ['SameValidator', $form, 'password']);
         $form->setRequired('password_again', false);
+        $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'save_settings')]);        
         return $form;
     }
     
-    private function getEmailDescription(User $user, $useEmailDescription) {
+    protected function getEmailDescription(User $user, $useEmailDescription) {
         if (!$useEmailDescription) {
             return '';
         }

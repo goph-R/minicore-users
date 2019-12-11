@@ -3,15 +3,10 @@
 <h1><?= text('user', 'settings') ?></h1>
 <?php if ($userSession->hasFlash('settings_messages')): ?>
     <?php foreach ($userSession->getFlash('settings_messages') as $message): ?>
-        <div class="info-<?= $message['type'] ?>">
-            <?= $message['text'] ?>
-        </div>
+        <?= $this->fetch(':user/message-box', $message) ?>
     <?php endforeach ?>
 <?php endif ?>
 <form action="<?= route_url('settings') ?>" method="post">
     <?= $form->fetch() ?>
-    <div class="form-row">
-        <input type="submit" value="<?= text('user', 'save_settings') ?>">
-    </div>
 </form>
 <?php end_block() ?>

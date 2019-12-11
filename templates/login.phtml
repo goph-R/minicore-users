@@ -1,13 +1,7 @@
 <?php use_layout(':user/layout') ?>
 <?php start_block('user_content') ?>
 <h1><?= text('user', 'login') ?></h1>
-<form action="<?= route_url('login', ['ref' => urlencode($request->get('ref'))]) ?>" method="post">
+<form action="<?= route_url('login') ?>" method="post">
     <?= $form->fetch() ?>
-    <div class="form-row">
-        <a href="<?= route_url('forgot') ?>"><?= text('user', 'forgotten_password') ?></a>
-    </div>
-    <div class="form-row">
-        <input type="submit" value="<?= text('user', 'login') ?>">
-    </div>
 </form>
 <?php end_block() ?>
