@@ -20,6 +20,9 @@ class UserService {
 
     /** @var Request */
     protected $request;
+    
+    /** @var Response */
+    protected $response;
 
     /** @var Framework */
     protected $framework;
@@ -44,6 +47,7 @@ class UserService {
         $this->mailer = $framework->get('mailer');
         $this->translation = $framework->get('translation');
         $this->request = $framework->get('request');
+        $this->response = $framework->get('response');
         $this->users = $framework->get('users');
         $this->anonymousUser = $framework->create('User');
         $this->rememberLogin();
@@ -75,7 +79,6 @@ class UserService {
             return;
         }
         $this->doLogin($user);
-        $this->redirectAfterLogin();
     }
     
     public function requireLogin() {
@@ -83,7 +86,7 @@ class UserService {
             return;
         }
         $url = $this->router->getBaseUrl().$this->request->getUri();
-        $this->userSession->set('login_redirect_url', $url);
+        $this->setLoginRedirectUrl($url);
         $this->framework->redirect('login');
     }
     
@@ -103,18 +106,20 @@ class UserService {
         if ($remember) {
             $hash = $this->hash(time());
             $user->set('remember_hash', $hash);
-            $this->request->setCookie('remember_hash', $hash);
+            $this->response->setCookie('remember_hash', $hash);
         }
         $this->doLogin($user);
         return true;
     }
     
-    public function redirectAfterLogin() {
-        $redirectUrl = $this->userSession->get('login_redirect_url');
-        $this->userSession->set('login_redirect_url', null);
-        $this->framework->redirect($redirectUrl ? $redirectUrl : $this->getLoggedInUrl());        
+    public function getLoginRedirectUrl() {
+        return $this->userSession->get('login_redirect_url');
     }
-
+    
+    public function setLoginRedirectUrl($value) {
+        $this->userSession->set('login_redirect_url', $value);
+    }
+    
     protected function doLogin(User $user) {
         $user->set('last_login', time());
         $user->save();
