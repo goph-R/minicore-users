@@ -67,12 +67,15 @@ class UserService {
 
     public function rememberLogin() {
         $rememberHash = $this->request->getCookie('remember_hash');
-        if (!$this->userSession->isLoggedIn() && $rememberHash) {
-            $user = $this->users->findActiveByRememberHash($rememberHash);
-            if ($user) {
-                $this->doLogin($user);
-            }
+        if ($this->userSession->isLoggedIn() || !$rememberHash) {
+            return;
         }
+        $user = $this->users->findActiveByRememberHash($rememberHash);
+        if (!$user) {
+            return;
+        }
+        $this->doLogin($user);
+        $this->redirectAfterLogin();
     }
     
     public function requireLogin() {
@@ -104,6 +107,12 @@ class UserService {
         }
         $this->doLogin($user);
         return true;
+    }
+    
+    public function redirectAfterLogin() {
+        $redirectUrl = $this->userSession->get('login_redirect_url');
+        $this->userSession->set('login_redirect_url', null);
+        $this->framework->redirect($redirectUrl ? $redirectUrl : $this->getLoggedInUrl());        
     }
 
     protected function doLogin(User $user) {
@@ -267,16 +276,10 @@ class UserService {
         $emailInput->setAutocomplete(false);
         $form->addInput(['user', 'password'], ['PasswordInput', 'password']);
         $form->addInput('', ['CheckboxInput', 'remember', '1', ['user', 'remember_me']]);
-        $form->addInput('', ['SeparatorInput', 'forgot', $this->getLinkForForgottenPassword()]);
         $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'login')]);
         return $form;
     }
 
-    protected function getLinkForForgottenPassword() {
-        $url = $this->router->getUrl('forgot');
-        return '<a href="'.$url.'">'.$this->translation->get('user', 'forgotten_password').'</a>';
-    }
-    
     /**
      * @return Form
      */

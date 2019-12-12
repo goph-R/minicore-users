@@ -12,7 +12,7 @@ class UserLoginController extends Controller {
 
     public function index() {
         if ($this->userSession->isLoggedIn()) {
-            $this->redirect('');
+            $this->redirect($this->userService->getLoggedInUrl());
         }
         $form = $this->userService->createLoginForm();
         if ($form->processInput()) {
@@ -20,9 +20,7 @@ class UserLoginController extends Controller {
             $password = $form->getValue('password');
             $remember = $form->getValue('remember');
             if ($this->userService->login($email, $password, $remember)) {
-                $loginRedirect = $this->userSession->get('login_redirect');
-                $loggedInUrl = $this->userService->getLoggedInUrl();
-                $this->redirect($loginRedirect ? $loginRedirect : $loggedInUrl);
+                $this->userService->redirectAfterLogin();
             } else {
                 $form->addError($this->translation->get('user', 'email_password_not_found'));
             }

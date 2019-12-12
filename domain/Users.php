@@ -21,7 +21,6 @@ class Users {
         $this->db = $framework->get($this->dbInstanceName);
     }
 
-
     /**
      * @param $email
      * @param $password

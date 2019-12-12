@@ -4,4 +4,5 @@
 <form action="<?= route_url('login') ?>" method="post">
     <?= $form->fetch() ?>
 </form>
+<a href="<?= route_url('forgot') ?>"><?= text('user', 'forgotten_password') ?></a>
 <?php end_block() ?>
