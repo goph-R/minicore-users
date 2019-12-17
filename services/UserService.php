@@ -260,6 +260,7 @@ class UserService {
         $form->addInput(['user', 'first_name'], ['TextInput', 'first_name']);
         $form->addInput(['user', 'last_name'], ['TextInput', 'last_name']);
         $form->addInput(['user', 'name'], ['TextInput', 'name'], ['user', 'will_be_used_as_public']);
+        $form->addValidator('name', 'NameExistsValidator');
         $form->addInput('Email', ['TextInput', 'email'], ['user', 'we_will_send_an_activation']);
         $form->addValidator('email', 'EmailValidator');
         $form->addValidator('email', 'EmailExistsValidator');

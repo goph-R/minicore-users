@@ -73,6 +73,18 @@ class Users {
     }
 
     /**
+     * @param $name
+     * @return User
+     */
+    public function findByName($name) {
+        return $this->db->fetch(
+            $this->recordClass,
+            "SELECT * FROM `{$this->tableName}` WHERE name = :name LIMIT 1",
+            [':name' => $name]
+        );
+    }
+    
+    /**
      * @param $hash
      * @return User
      */
