@@ -90,6 +90,14 @@ class UserService {
         $this->framework->redirect('login');
     }
     
+    public function requirePermission($permissionIds) {
+        $this->requireLogin();
+        $currentUser = $this->getCurrentUser();
+        if (!$currentUser->hasPermission($permissionIds)) {
+            $this->framework->error(403);
+        }
+    }
+    
     public function getLoggedInUrl() {
         return $this->config->get(self::CONFIG_LOGGED_IN_URL);
     }
@@ -105,7 +113,7 @@ class UserService {
         }
         if ($remember) {
             $hash = $this->hash(time());
-            $user->set('remember_hash', $hash);
+            $user->setRememberHash($hash);
             $this->response->setCookie('remember_hash', $hash);
         }
         $this->doLogin($user);
@@ -121,10 +129,10 @@ class UserService {
     }
     
     protected function doLogin(User $user) {
-        $user->set('last_login', time());
+        $user->setLastLogin(time());
         $user->save();
         $this->userSession->setLoggedIn(true);
-        $this->userSession->set('id', $user->get('id'));
+        $this->userSession->set('id', $user->getId());
     }
 
     /**
@@ -145,7 +153,7 @@ class UserService {
         $id = $this->userSession->get('id');
         $user = $this->users->findById($id);
         if ($user) {
-            $user->set('remember_hash', null);
+            $user->setRememberHash(null);
             $user->save();
         }
         $this->request->setCookie('remember_hash', null);
@@ -157,8 +165,8 @@ class UserService {
         $hash = $this->hash(time());
         $user = $this->users->create();
         $user->setArray($values, $fields);
-        $user->set('password', $this->hash($values['password']));
-        $user->set('activation_hash', $hash);
+        $user->setPassword($this->hash($values['password']));
+        $user->setActivationHash($hash);
         $user->save();
         return $user;
     }
@@ -181,8 +189,8 @@ class UserService {
         if (!$user) {
             return false;
         }
-        $user->set('activation_hash', null);
-        $user->set('active', 1);
+        $user->setActivationHash(null);
+        $user->setActive(1);
         $user->save();
         return true;
     }
@@ -193,7 +201,7 @@ class UserService {
             return false;
         }
         $hash = $this->hash(time());
-        $user->set('forgot_hash', $hash);
+        $user->setForgotHash($hash);
         $user->save();
         $this->mailer->init();
         $this->mailer->addAddress($email);
@@ -206,8 +214,8 @@ class UserService {
     }
 
     public function changeForgotPassword(User $user, $password) {
-        $user->set('forgot_hash', '');
-        $user->set('password', $this->hash($password));
+        $user->setForgotHash(null);
+        $user->setPassword($this->hash($password));
         $user->save();
     }
 
@@ -216,15 +224,15 @@ class UserService {
         if (!$user) {
             return false;
         }
-        $user->set('password', $this->hash($password));
+        $user->setPassword($this->hash($password));
         $user->save();
         return true;
     }
 
     public function setNewEmail(User $user, $email) {
         $hash = $this->hash($email);
-        $user->set('new_email', $email);
-        $user->set('new_email_hash', $hash);
+        $user->setNewEmail($email);
+        $user->setNewEmailHash($hash);
         return $hash;
     }
 
@@ -240,13 +248,13 @@ class UserService {
 
     public function activateNewEmail($id, $hash) {
         $user = $this->users->findById($id);
-        if (!$user || $user->get('new_email_hash') != $hash) {
+        if (!$user || $user->getNewEmailHash() != $hash) {
             return false;
         }
-        $email = $user->get('new_email');
-        $user->set('new_email', null);
-        $user->set('new_email_hash', null);
-        $user->set('email', $email);
+        $email = $user->getNewEmail();
+        $user->setNewEmail(null);
+        $user->setNewEmailHash(null);
+        $user->setEmail($email);
         $user->save();
         return true;
     }
@@ -324,10 +332,10 @@ class UserService {
         $emailDescription = $this->getEmailDescription($user, $useEmailDescription);
         /** @var Form $form */
         $form = $this->framework->create('Form', ['settings']);
-        $emailInput = $form->addInput('Email', ['TextInput', 'email', $user->get('email')], $emailDescription);
+        $emailInput = $form->addInput('Email', ['TextInput', 'email', $user->getEmail()], $emailDescription);
         $emailInput->setAutocomplete(false);
         $form->addValidator('email', 'EmailValidator');
-        $form->addValidator('email', ['EmailExistsExceptValidator', $user->get('id')]);
+        $form->addValidator('email', ['EmailExistsExceptValidator', $user->getId()]);
         $form->addInput(['user', 'old_password'], ['PasswordInput', 'old_password'], ['user', 'set_if_change_password']);
         $form->addValidator('old_password', 'CurrentPasswordValidator');
         $form->setRequired('old_password', false);
@@ -346,7 +354,7 @@ class UserService {
         if (!$useEmailDescription) {
             return '';
         }
-        $newEmail = $user->get('new_email');
+        $newEmail = $user->getNewEmail();
         if (!$newEmail) {
             $result = $this->translation->get('user', 'email_change_description');
         } else {

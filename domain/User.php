@@ -2,33 +2,12 @@
 
 class User extends Record {
 
-/*
-
-CREATE TABLE `user` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`first_name` VARCHAR(255) NOT NULL COLLATE 'utf8_hungarian_ci',
-	`last_name` VARCHAR(255) NOT NULL COLLATE 'utf8_hungarian_ci',
-	`name` VARCHAR(64) NOT NULL COLLATE 'utf8_hungarian_ci',
-	`email` VARCHAR(255) NOT NULL COLLATE 'utf8_hungarian_ci',
-	`password` CHAR(32) NOT NULL COLLATE 'utf8_hungarian_ci',
-	`active` TINYINT(1) NOT NULL DEFAULT '0',
-	`last_login` INT(11) NOT NULL DEFAULT '0',
-	`activation_hash` CHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_hungarian_ci',
-	`forgot_hash` CHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_hungarian_ci',
-	`remember_hash` CHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_hungarian_ci',
-	`new_email` CHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_hungarian_ci',
-	`new_email_hash` CHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8_hungarian_ci',
-	PRIMARY KEY (`id`)
-)
-COLLATE='utf8_hungarian_ci'
-ENGINE=InnoDB
-;
-
- */
-
     protected $tableName = 'user';
-
-    protected $id;
+    protected $referenceList = ['roles', 'permissions'];
+    protected $roles = [];
+    protected $permissions = [];
+    
+    protected $id = 0;
     protected $name;
     protected $first_name;
     protected $last_name;
@@ -41,9 +20,59 @@ ENGINE=InnoDB
     protected $remember_hash = '';
     protected $new_email = '';
     protected $new_email_hash = '';
+    
+    public function findRoles() {
+        $query = 'SELECT r.id, rt.name FROM role AS r';
+        $query .= ' JOIN role_text AS rt ON rt.text_id = r.id AND rt.locale = :locale';
+        $query .= ' JOIN user_role AS ur ON ur.role_id = r.id';
+        $query .= ' JOIN user AS u ON u.id = ur.user_id AND u.id = :id';
+        return $this->db->fetchAll('Role', $query, [
+            ':id' => $this->get('id'),
+            ':locale' => $this->translation->getLocale()
+        ]);        
+    }
+    
+    public function findPermissions() {
+        $query = 'SELECT p.id, pt.name FROM permission AS p';
+        $query .= ' JOIN permission_text AS pt ON pt.text_id = p.id AND pt.locale = :locale';
+        $query .= ' JOIN role_permission AS rp ON p.id = rp.permission_id';
+        $query .= ' JOIN role AS r ON r.id = rp.role_id';
+        $query .= ' JOIN user_role AS ur ON ur.role_id = r.id';
+        $query .= ' JOIN user AS u ON u.id = ur.user_id AND u.id = :id';
+        return $this->db->fetchAll('Permission', $query, [
+            ':id' => $this->get('id'),
+            ':locale' => $this->translation->getLocale()
+        ]);
+    }
+    
+    public function getRoles() {
+        if (!$this->roles) {
+            $this->roles = $this->findRoles();
+        }
+        return $this->roles;
+    }
 
-    public function getFormattedLastLogin() {
-        return date('Y-m-d H:i', $this->get('last_login'));
+    public function getPermissions() {
+        if (!$this->permissions) {
+            $this->permissions = $this->findPermissions();
+        }
+        return $this->permissions;
+    }
+    
+    public function hasPermission($permissionIds) {
+        if (!is_array($permissionIds)) {
+            $permissionIds = [$permissionIds];
+        }
+        if (in_array(null, $permissionIds)) {
+            return true;
+        }
+        $permissions = $this->getPermissions();
+        foreach ($permissions as $permission) {
+            if (in_array($permission->getId(), $permissionIds)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

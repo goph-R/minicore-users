@@ -29,7 +29,7 @@ class Users {
     public function findActiveByEmailAndPassword($email, $password) {
         $record = $this->db->fetch(
             $this->recordClass,
-            "SELECT * FROM `{$this->tableName}` WHERE email = :email AND password = :password AND active = 1 LIMIT 1",
+            "SELECT * FROM {$this->tableName} WHERE email = :email AND password = :password AND active = 1 LIMIT 1",
             [':email' => $email, ':password' => $this->hash($password)]
         );
         return $record;
@@ -42,7 +42,7 @@ class Users {
     public function findById($id) {
         return $this->db->fetch(
             $this->recordClass,
-            "SELECT * FROM `{$this->tableName}` WHERE id = :id LIMIT 1",
+            "SELECT * FROM {$this->tableName} WHERE id = :id LIMIT 1",
             [':id' => $id]
         );
     }
@@ -54,7 +54,7 @@ class Users {
     public function findActiveById($id) {
         return $this->db->fetch(
             $this->recordClass,
-            "SELECT * FROM `{$this->tableName}` WHERE id = :id AND active = 1 LIMIT 1",
+            "SELECT * FROM {$this->tableName} WHERE id = :id AND active = 1 LIMIT 1",
             [':id' => $id]
         );
     }
@@ -67,7 +67,7 @@ class Users {
     public function findByEmail($email) {
         return $this->db->fetch(
             $this->recordClass,
-            "SELECT * FROM `{$this->tableName}` WHERE email = :email LIMIT 1",
+            "SELECT * FROM {$this->tableName} WHERE email = :email LIMIT 1",
             [':email' => $email]
         );
     }
@@ -79,7 +79,7 @@ class Users {
     public function findByName($name) {
         return $this->db->fetch(
             $this->recordClass,
-            "SELECT * FROM `{$this->tableName}` WHERE name = :name LIMIT 1",
+            "SELECT * FROM {$this->tableName} WHERE name = :name LIMIT 1",
             [':name' => $name]
         );
     }
@@ -91,7 +91,7 @@ class Users {
     public function findByActivationHash($hash) {
         return $this->db->fetch(
             $this->recordClass,
-            "SELECT * FROM `{$this->tableName}` WHERE activation_hash = :hash LIMIT 1",
+            "SELECT * FROM {$this->tableName} WHERE activation_hash = :hash LIMIT 1",
             [':hash' => $hash]
         );
     }
@@ -103,7 +103,7 @@ class Users {
     public function findByForgotHash($hash) {
         return $this->db->fetch(
             $this->recordClass,
-            "SELECT * FROM `{$this->tableName}` WHERE forgot_hash = :hash LIMIT 1",
+            "SELECT * FROM {$this->tableName} WHERE forgot_hash = :hash LIMIT 1",
             [':hash' => $hash]
         );
     }
@@ -115,7 +115,7 @@ class Users {
     public function findActiveByRememberHash($hash) {
         return $this->db->fetch(
             $this->recordClass,
-            "SELECT * FROM `{$this->tableName}` WHERE remember_hash = :hash LIMIT 1",
+            "SELECT * FROM {$this->tableName} WHERE remember_hash = :hash LIMIT 1",
             [':hash' => $hash]
         );
     }
@@ -123,7 +123,7 @@ class Users {
     public function findByEmailExceptId($email, $exceptId) {
         return $this->db->fetch(
             $this->recordClass,
-            "SELECT * FROM `{$this->tableName}` WHERE email = :email AND id <> :id LIMIT 1",
+            "SELECT * FROM {$this->tableName} WHERE email = :email AND id <> :id LIMIT 1",
             [':email' => $email, ':id' => $exceptId]
         );
     }
