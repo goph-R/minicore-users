@@ -8,6 +8,8 @@ class UsersModule extends Module {
         parent::__construct($framework);
         $framework->add([
             'users'                  => 'Users',
+            'roles'                  => 'Roles',
+            'permissions'            => 'Permissions',
             'userService'            => 'UserService',
             'userRegisterController' => 'UserRegisterController',
             'userLoginController'    => 'UserLoginController',

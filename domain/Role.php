@@ -5,10 +5,11 @@ class Role extends Record {
     protected $tableName = 'user';
     protected $localizedList = ['name'];
     protected $referenceList = ['permissions'];
-    protected $permissions;
 
     protected $id;
     protected $name;
+
+    protected $permissions;
     
     public function __toString() {
         return $this->name;
@@ -18,9 +19,10 @@ class Role extends Record {
         $query = 'SELECT p.id, pt.name FROM permission AS p';
         $query .= ' JOIN permission_text AS pt ON pt.text_id = p.id AND pt.locale = :locale';
         $query .= ' JOIN role_permission AS rp ON p.id = rp.permission_id';
-        $query .= ' JOIN role AS r ON r.id = :id';
+        $query .= ' JOIN role AS r ON r.id = rp.role_id';
+        $query .= ' WHERE r.id = :id';
         return $this->db->fetchAll('Permission', $query, [
-            ':id' => $this->get('id'),
+            ':id' => $this->getId(),
             ':locale' => $this->translation->getLocale()
         ]);
     }
