@@ -2,7 +2,7 @@
 
 class Role extends Record {
     
-    protected $tableName = 'user';
+    protected $tableName = 'role';
     protected $localizedList = ['name'];
     protected $referenceList = ['permissions'];
 

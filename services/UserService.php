@@ -90,10 +90,10 @@ class UserService {
         $this->framework->redirect('login');
     }
     
-    public function requirePermission($permissionIds) {
+    public function requirePermission($permission) {
         $this->requireLogin();
         $currentUser = $this->getCurrentUser();
-        if (!$currentUser->hasPermission($permissionIds)) {
+        if (!$currentUser->hasPermission($permission)) {
             $this->framework->error(403);
         }
     }
@@ -159,13 +159,17 @@ class UserService {
         $this->request->setCookie('remember_hash', null);
         $this->userSession->destroy();
     }
+    
+    public function hashPassword($password) {
+        return $this->hash($password);
+    }
 
     public function register($values) {
         $fields = ['email', 'first_name', 'last_name', 'name'];
         $hash = $this->hash(time());
         $user = $this->users->create();
         $user->setArray($values, $fields);
-        $user->setPassword($this->hash($values['password']));
+        $user->setPassword($this->hashPassword($values['password']));
         $user->setActivationHash($hash);
         $user->save();
         return $user;
@@ -215,7 +219,7 @@ class UserService {
 
     public function changeForgotPassword(User $user, $password) {
         $user->setForgotHash(null);
-        $user->setPassword($this->hash($password));
+        $user->setPassword($this->hashPassword($password));
         $user->save();
     }
 
@@ -224,7 +228,7 @@ class UserService {
         if (!$user) {
             return false;
         }
-        $user->setPassword($this->hash($password));
+        $user->setPassword($this->hashPassword($password));
         $user->save();
         return true;
     }

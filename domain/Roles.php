@@ -2,6 +2,8 @@
 
 class Roles {
 
+    const ADMINISTRATOR_ID = 1;
+    
     /** @var Framework */
     protected $framework;
 

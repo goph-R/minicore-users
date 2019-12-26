@@ -21,6 +21,10 @@ class User extends Record {
     protected $new_email = '';
     protected $new_email_hash = '';
     
+    public function setActive($value) {
+        $this->active = $value ? 1 : 0;
+    }    
+    
     public function findRoles() {
         $query = 'SELECT r.id, rt.name FROM role AS r';
         $query .= ' JOIN role_text AS rt ON rt.text_id = r.id AND rt.locale = :locale';
@@ -59,20 +63,17 @@ class User extends Record {
         return $this->permissions;
     }
     
-    public function hasPermission($permissionIds) {
-        if (!is_array($permissionIds)) {
-            $permissionIds = [$permissionIds];
-        }
-        if (in_array(null, $permissionIds)) {
+    public function hasPermission($permissionId) {
+        if ($permissionId === null) {
             return true;
         }
-        $permissions = $this->getPermissions();
-        foreach ($permissions as $permission) {
+        $permissionIds = [$permissionId, AdminPermissions::ADMINISTRATION];
+        foreach ($this->getPermissions() as $permission) {
             if (in_array($permission->getId(), $permissionIds)) {
                 return true;
             }
         }
         return false;
     }
-
+    
 }
