@@ -58,7 +58,15 @@ class Users {
             [':id' => $id]
         );
     }
-
+    
+    public function findByIds($ids) {
+        $in = $this->db->getInConditionAndParams($ids);
+        return $this->db->fetchAll(
+            $this->recordClass,
+            "SELECT * FROM {$this->tableName} WHERE id IN (".$in['condition'].") LIMIT ".count($ids),
+            $in['params']
+        );
+    }
 
     /**
      * @param $email
