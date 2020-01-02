@@ -65,6 +65,9 @@ class User extends Record {
     
     public function hasPermission($permissionId) {
         if ($permissionId === null) {
+            return false;
+        }
+        if ($permissionId === 0) {
             return true;
         }
         $permissionIds = [$permissionId, AdminPermissions::ADMINISTRATION];
