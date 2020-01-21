@@ -223,17 +223,16 @@ class UserService {
         $user->save();
     }
 
-    public function changePassword($id, $password) {
-        $user = $this->users->findById($id);
-        if (!$user) {
-            return false;
-        }
+    public function changePassword(User $user, $password) {
         $user->setPassword($this->hashPassword($password));
-        $user->save();
-        return true;
+    }
+    
+    public function changeFullName(User $user, $firstName, $lastName) {
+        $user->setFirstName($firstName);
+        $user->setLastName($lastName);
     }
 
-    public function setNewEmail(User $user, $email) {
+    public function changeEmail(User $user, $email) {
         $hash = $this->hash($email);
         $user->setNewEmail($email);
         $user->setNewEmailHash($hash);

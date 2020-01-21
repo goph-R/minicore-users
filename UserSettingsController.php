@@ -4,6 +4,8 @@ class UserSettingsController extends Controller {
 
     /** @var UserService */
     protected $userService;
+    
+    protected $saveMessages = [];
 
     public function __construct(Framework $framework) {
         parent::__construct($framework);
@@ -16,9 +18,9 @@ class UserSettingsController extends Controller {
         }
         $form = $this->userService->createSettingsForm($this->userService->getCurrentUser());
         if ($form->processInput()) {
-            $messages = $this->save($form);
-            if ($messages) {
-                $this->userSession->setFlash('settings_messages', $messages);
+            $this->save($form);
+            if ($this->saveMessages) {
+                $this->userSession->setFlash('settings_messages', $this->saveMessages);
                 $this->redirect('settings');
             }
         }
@@ -32,29 +34,49 @@ class UserSettingsController extends Controller {
     }
     
     protected function save(Form $form) {
-        $user = $this->userService->getCurrentUser();
-        $messages = [];
-        if ($form->getValue('last_name') != $user->getLastName() || $form->getValue('first_name') != $user->getFirstName()) {
-            $user->setFirstName($form->getValue('first_name'));
-            $user->setLastName($form->getValue('last_name'));
+        $this->saveMessages = [];
+        $save = $this->saveFullName($form);
+        $save |= $this->savePassword($form);
+        $save |= $this->saveEmail($form);
+        if ($save) {
+            $user = $this->userService->getCurrentUser();
             $user->save();
-            $messages[] = $this->getMessage('info', 'fullname_modify_success');
         }
-        if ($form->getValue('old_password') && $form->getValue('password')) {
-            $this->userService->changePassword($user->get('id'), $form->getValue('password'));
-            $messages[] = $this->getMessage('info', 'password_changed');
+    }
+    
+    protected function saveFullName($form) {
+        $user = $this->userService->getCurrentUser();
+        if ($form->getValue('last_name') != $user->getLastName() || $form->getValue('first_name') != $user->getFirstName()) {
+            $this->userService->changeFullName($user, $form->getValue('first_name'), $form->getValue('last_name'));
+            $this->saveMessages[] = $this->getMessage('info', 'fullname_modify_success');
+            return true;
         }
+        return false;
+    }
+
+    protected function saveEmail($form) {
+        $user = $this->userService->getCurrentUser();
         $email = $form->getValue('email');
         if ($email != $user->get('email')) {
-            $hash = $this->userService->setNewEmail($user, $email);
+            $hash = $this->userService->changeEmail($user, $email);
             if ($this->userService->sendNewAddressEmail($email, $hash)) {
-                $user->save();
-                $messages[] = $this->getMessage('info', 'new_email_was_set');
+                $this->saveMessages[] = $this->getMessage('info', 'new_email_was_set');
+                return true;
             } else {
-                $messages[] = $this->getMessage('error', 'couldnt_send_email');
-            }  
+                $this->saveMessages[] = $this->getMessage('error', 'couldnt_send_email');
+            }
         }
-        return $messages;
+        return false;
+    }
+    
+    protected function savePassword($form) {
+        $user = $this->userService->getCurrentUser();
+        if ($form->getValue('old_password') && $form->getValue('password')) {
+            $this->userService->changePassword($user, $form->getValue('password'));
+            $this->saveMessages[] = $this->getMessage('info', 'password_changed');
+            return true;
+        }
+        return false;
     }
     
     public function activate($hash) {
