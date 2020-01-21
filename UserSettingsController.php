@@ -34,6 +34,12 @@ class UserSettingsController extends Controller {
     protected function save(Form $form) {
         $user = $this->userService->getCurrentUser();
         $messages = [];
+        if ($form->getValue('last_name') != $user->getLastName() || $form->getValue('first_name') != $user->getFirstName()) {
+            $user->setFirstName($form->getValue('first_name'));
+            $user->setLastName($form->getValue('last_name'));
+            $user->save();
+            $messages[] = $this->getMessage('info', 'fullname_modify_success');
+        }
         if ($form->getValue('old_password') && $form->getValue('password')) {
             $this->userService->changePassword($user->get('id'), $form->getValue('password'));
             $messages[] = $this->getMessage('info', 'password_changed');

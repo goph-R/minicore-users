@@ -269,10 +269,10 @@ class UserService {
     public function createRegisterForm() {
         /** @var Form $form */
         $form = $this->framework->create('Form', ['register']);
-        $form->addInput(['user', 'first_name'], ['TextInput', 'first_name']);
-        $form->addInput(['user', 'last_name'], ['TextInput', 'last_name']);
         $form->addInput(['user', 'name'], ['TextInput', 'name'], ['user', 'will_be_used_as_public']);
         $form->addValidator('name', 'NameExistsValidator');
+        $form->addInput(['user', 'first_name'], ['TextInput', 'first_name']);
+        $form->addInput(['user', 'last_name'], ['TextInput', 'last_name']);
         $form->addInput('Email', ['TextInput', 'email'], ['user', 'we_will_send_an_activation']);
         $form->addValidator('email', 'EmailValidator');
         $form->addValidator('email', 'EmailExistsValidator');
@@ -336,6 +336,11 @@ class UserService {
         $emailDescription = $this->getEmailDescription($user, $useEmailDescription);
         /** @var Form $form */
         $form = $this->framework->create('Form', ['settings']);
+        $nameInput = $form->addInput(['user', 'name'], ['TextInput', 'name', $user->getName()], ['user', 'cant_modify']);
+        $nameInput->setReadOnly(true);
+        $form->setRequired('name', false);
+        $form->addInput(['user', 'first_name'], ['TextInput', 'first_name', $user->getFirstName()]);
+        $form->addInput(['user', 'last_name'], ['TextInput', 'last_name', $user->getLastName()]);
         $emailInput = $form->addInput('Email', ['TextInput', 'email', $user->getEmail()], $emailDescription);
         $emailInput->setAutocomplete(false);
         $form->addValidator('email', 'EmailValidator');
