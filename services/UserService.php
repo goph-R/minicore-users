@@ -132,7 +132,7 @@ class UserService {
         $user->setLastLogin(time());
         $user->save();
         $this->userSession->setLoggedIn(true);
-        $this->userSession->set('id', $user->getId());
+        $this->userSession->setId($user->getId());
     }
 
     /**
@@ -145,12 +145,12 @@ class UserService {
         if ($this->currentUser) {
             return $this->currentUser;
         }
-        $this->currentUser = $this->users->findById($this->userSession->get('id'));
+        $this->currentUser = $this->users->findById($this->userSession->getId());
         return $this->currentUser;
     }
 
     public function logout() {
-        $id = $this->userSession->get('id');
+        $id = $this->userSession->getId();
         $user = $this->users->findById($id);
         if ($user) {
             $user->setRememberHash(null);
