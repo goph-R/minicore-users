@@ -22,7 +22,6 @@ class UserSettingsController extends Controller {
         $this->view->set(['userSession' => $this->userSession]);
         $this->render(':user/settings', [
             'form' => $form,
-            'title' => text('user', 'settings'),
             'active' => 'general',
             'action' => route_url('settings')
         ]);

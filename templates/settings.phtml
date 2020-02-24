@@ -1,6 +1,6 @@
 <?php use_layout(':user/layout') ?>
 <?php start_block('user_content') ?>
-<h1 class="title"><?= $title ?></h1>
+<h1 class="title"><?= text('user', 'settings') ?></h1>
 <?= $this->fetch(':user/settings-tabs', ['active' => $active]) ?>
 <?= $this->fetch(':user/settings-messages') ?>
 <form id="user_settings_form" action="<?= $action ?>" method="post" enctype="multipart/form-data">

@@ -17,7 +17,6 @@ class UserAvatarController extends Controller {
         $this->view->set(['userSession' => $this->userSession]);
         $this->render(':user/settings', [
             'form' => $form,            
-            'title' => text('user', 'avatar'),
             'active' => 'avatar',
             'action' => route_url('settings/avatar')
         ]);        
