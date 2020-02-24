@@ -1,0 +1,40 @@
+<?php
+
+class CurrentAvatarInput extends Input {
+        
+    /** @var UserService */
+    protected $userService;
+    
+    /** @var View */
+    protected $view;
+    
+    protected $bind = false;
+    
+    public function __construct(Framework $framework, $name, $defaultValue='') {
+        parent::__construct($framework, $name, $defaultValue);
+        $this->userService = $framework->get('userService');
+        $this->view = $framework->get('view');
+    }
+    
+    public function fetch() {
+        $user = $this->userService->findById($this->getValue());
+        if (!$user) {
+            return '';
+        }
+        $url = $user->getAvatarUrl();
+        $img = '<img src="'.$url.'" alt="Avatar">';
+        $link = '';
+        if ($user->hasAvatar()) {
+            $removeUrl = route_url('settings/remove_avatar');
+            $icon = '<i class="fas fa-trash" style="margin-right: 0.4rem"></i>';
+            $text = text('user', 'remove_avatar');
+            $link = '<p style="margin-bottom: 1rem"><a id="avatar_remove_link" href="'.$removeUrl.'">'.$icon.$text.'</a></p>';
+        }        
+        $this->view->addScript('/modules/minicore-users/static/current-avatar-input.js');
+        $this->view->startBlock('scripts');
+        $this->view->write('<script>createCurrentAvatarInput("'.text('user', 'confirm_remove').'")</script>');
+        $this->view->endBlock();
+        return $img.$link;
+    }
+    
+}

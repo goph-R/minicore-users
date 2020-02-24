@@ -5,6 +5,15 @@ class UserService {
     const CONFIG_USERS_REGISTER_DISABLED = 'users.register_disabled';
     const CONFIG_LOGGED_IN_URL = 'users.logged_in_url';
     const CONFIG_LOGGED_OUT_URL = 'users.logged_out_url';
+    
+    const CONFIG_AVATAR_SIZE = 'users.avatar_size';
+    const DEFAULT_AVATAR_SIZE = 128;
+    
+    const CONFIG_AVATAR_MAX_FILE_SIZE = 'users.avatar_max_file_size';
+    const DEFAULT_AVATAR_MAX_FILE_SIZE = 2*1024*1024; // 2MB
+    
+    const CONFIG_AVATAR_QUALITY = 'users.avatar_quality';
+    const DEFAULT_AVATAR_QUALITY = 90;
 
     /** @var Config */
     protected $config;
@@ -51,6 +60,18 @@ class UserService {
         $this->users = $framework->get('users');
         $this->anonymousUser = $framework->create('User');
         $this->rememberLogin();
+    }
+    
+    public function getAvatarSize() {
+        return $this->config->get(self::CONFIG_AVATAR_SIZE, self::DEFAULT_AVATAR_SIZE);
+    }
+    
+    public function getAvatarMaxFileSize() {
+        return $this->config->get(self::CONFIG_AVATAR_MAX_FILE_SIZE, self::DEFAULT_AVATAR_MAX_FILE_SIZE);
+    }
+    
+    public function getAvatarQuality() {
+        return $this->config->get(self::CONFIG_AVATAR_QUALITY, self::DEFAULT_AVATAR_QUALITY);
     }
     
     public function isRegisterDisabled() {
@@ -183,7 +204,7 @@ class UserService {
         }
         $this->mailer->set('hash', $hash);
         return $this->mailer->send(
-            $this->translation->get('user', 'registration'),
+            text('user', 'registration'),
             ':user/register-email'
         );
     }
@@ -211,7 +232,7 @@ class UserService {
         $this->mailer->addAddress($email);
         $this->mailer->set('hash', $hash);
         $result = $this->mailer->send(
-            $this->translation->get('user', 'password_changing'),
+            text('user', 'password_changing'),
             ':user/forgot-email'
         );
         return $result;
@@ -244,7 +265,7 @@ class UserService {
         $this->mailer->addAddress($email);
         $this->mailer->set('hash', $hash);
         return $this->mailer->send(
-            $this->translation->get('user', 'new_email_address'),
+            text('user', 'new_email_address'),
             ':user/new-address-email'
         );
     }
@@ -279,7 +300,7 @@ class UserService {
         $form->addValidator('password', 'PasswordValidator');
         $form->addInput(['user', 'password_again'], ['PasswordInput', 'password_again']);
         $form->addValidator('password_again', ['SameValidator', $form, 'password']);
-        $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'registration')]);
+        $form->addInput('', ['SubmitInput', 'submit', text('user', 'registration')]);
         return $form;
     }
     
@@ -293,7 +314,7 @@ class UserService {
         $emailInput->setAutocomplete(false);
         $form->addInput(['user', 'password'], ['PasswordInput', 'password']);
         $form->addInput('', ['CheckboxInput', 'remember', '1', ['user', 'remember_me']]);
-        $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'login')]);
+        $form->addInput('', ['SubmitInput', 'submit', text('user', 'login')]);
         return $form;
     }
 
@@ -307,7 +328,7 @@ class UserService {
         $form->addInput(['user', 'password_again'], ['PasswordInput', 'password_again']);
         $form->addValidator('password', 'PasswordValidator');
         $form->addValidator('password_again', ['SameValidator', $form, 'password']);
-        $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'password_changing')]);
+        $form->addInput('', ['SubmitInput', 'submit', text('user', 'password_changing')]);
         return $form;
     }
 
@@ -321,7 +342,7 @@ class UserService {
         $emailInput->setAutocomplete(false);
         $form->addValidator('email', 'EmailValidator');
         $form->addValidator('email', ['EmailExistsValidator', true]);
-        $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'send')]);        
+        $form->addInput('', ['SubmitInput', 'submit', text('user', 'send')]);        
         return $form;
     }
 
@@ -354,8 +375,60 @@ class UserService {
         $form->addInput(['user', 'new_password_again'], ['PasswordInput', 'password_again']);
         $form->addValidator('password_again', ['SameValidator', $form, 'password']);
         $form->setRequired('password_again', false);
-        $form->addInput('', ['SubmitInput', 'submit', $this->translation->get('user', 'save_settings')]);        
+        $form->addInput('', ['SubmitInput', 'submit', text('user', 'save_settings')]);        
         return $form;
+    }
+    
+    public function createAvatarForm(User $user) {
+        $form = $this->framework->create('Form', ['avatar']);
+        $params = [
+            'size' => $this->getAvatarSize(),
+            'max' => round($this->getAvatarMaxFileSize() / 1024 / 1024)
+        ];
+        $description = text('user', 'avatar_upload_description', $params);
+        $form->addInput(['user', 'avatar_upload'], ['FileInput', 'file'], $description);
+        $currentAvatarInput = $form->addInput('', ['CurrentAvatarInput', 'current', $this->userSession->getId()]);
+        $currentAvatarInput->setRequired(false);
+        $form->addInput('', ['SubmitInput', 'submit', text('user', 'save_avatar')]);
+        return $form;
+    }
+    
+    public function changeAvatar(User $user, $srcPath) {
+        $this->removeAvatar($user);
+        do {
+            $user->setAvatar(bin2hex(random_bytes(16)));            
+        } while ($user->hasAvatar());
+        $path = $user->getAvatarPath();
+        $dir = dirname($path);
+        if (!file_exists($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $srcSize = getimagesize($srcPath);
+        $src = imagecreatefromjpeg($srcPath);
+        $srcX = 0;
+        $srcY = 0;
+        $srcW = $srcSize[0];
+        $srcH = $srcSize[1];
+        $destSize = $this->getAvatarSize();
+        $dest = imagecreatetruecolor($destSize, $destSize);
+        if ($srcW > $srcH) {
+            $srcX = ($srcW - $srcH) / 2;
+            $srcW = $srcH;
+        } else {
+            $srcY = ($srcH - $srcW) / 2;
+            $srcH = $srcW;
+        }
+        imagecopyresampled($dest, $src, 0, 0, $srcX, $srcY, $destSize, $destSize, $srcW, $srcH);
+        imagejpeg($dest, $path, $this->getAvatarQuality());
+        imagedestroy($dest);
+        imagedestroy($src);
+    }
+    
+    public function removeAvatar(User $user) {
+        if (!$user->hasAvatar()) {
+            return;
+        }
+        unlink($user->getAvatarPath());
     }
     
     protected function getEmailDescription(User $user, $useEmailDescription) {
@@ -364,9 +437,9 @@ class UserService {
         }
         $newEmail = $user->getNewEmail();
         if (!$newEmail) {
-            $result = $this->translation->get('user', 'email_change_description');
+            $result = text('user', 'email_change_description');
         } else {
-            $result = $this->translation->get('user', 'waits_for_activation', ['email' => $newEmail]);
+            $result = text('user', 'waits_for_activation', ['email' => $newEmail]);
         }
         return $result;
     }

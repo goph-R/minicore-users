@@ -1,0 +1,6 @@
+<div class="tabs is-boxed">
+    <ul>
+        <li<?= $active == 'general' ? ' class="is-active"': '' ?>><a href="<?= route_url('settings') ?>"><?= text('user', 'general') ?></a></li>
+        <li<?= $active == 'avatar' ? ' class="is-active"': '' ?>><a href="<?= route_url('settings/avatar') ?>"><?= text('user', 'avatar') ?></a></li>
+    </ul>
+</div>

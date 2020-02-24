@@ -20,10 +20,11 @@ class User extends Record {
     protected $remember_hash = '';
     protected $new_email = '';
     protected $new_email_hash = '';
+    protected $avatar = '';
     
     public function setActive($value) {
         $this->active = $value ? 1 : 0;
-    }    
+    }
     
     public function findRoles() {
         $query = 'SELECT r.id, rt.name FROM role AS r';
@@ -77,6 +78,26 @@ class User extends Record {
             }
         }
         return false;
+    }
+        
+    public function getAvatarPath() {
+        $avatar = $this->getAvatar();
+        $prefix = '';
+        if ($avatar) {
+            $prefix = $avatar[0].$avatar[1].'/'.$avatar[2].$avatar[3].'/';
+        }
+        return 'upload/avatar/'.$prefix.$avatar.'.jpg';
+    }
+    
+    public function hasAvatar() {
+        return file_exists($this->getAvatarPath());
+    }
+    
+    public function getAvatarUrl() {
+        if (!$this->hasAvatar()) {
+            return 'modules/minicore-users/static/default-avatar.png';
+        }
+        return $this->getAvatarPath();
     }
     
 }

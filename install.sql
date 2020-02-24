@@ -12,6 +12,7 @@ CREATE TABLE `user` (
     `remember_hash` CHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8mb4_general_ci',
     `new_email` CHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8mb4_general_ci',
     `new_email_hash` CHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8mb4_general_ci',
+    `avatar` CHAR(32) NOT NULL DEFAULT '' COLLATE 'utf8mb4_general_ci',
     PRIMARY KEY (`id`)
 )
 COLLATE='utf8mb4_general_ci'

@@ -16,7 +16,8 @@ class UsersModule extends Module {
             'userForgotController'   => 'UserForgotController',
             'userLogoutController'   => 'UserLogoutController',
             'userProfileController'  => 'UserProfileController',
-            'userSettingsController' => 'UserSettingsController'
+            'userSettingsController' => 'UserSettingsController',
+            'userAvatarController'   => 'UserAvatarController'
         ]);
     }
 
@@ -44,7 +45,9 @@ class UsersModule extends Module {
             ['logout', 'userLogoutController', 'index'],
             ['profile/?', 'userProfileController', 'index'],
             ['settings', 'userSettingsController', 'index', ['GET', 'POST']],
-            ['settings/activate/?', 'userSettingsController', 'activate']
+            ['settings/activate/?', 'userSettingsController', 'activate'],
+            ['settings/avatar', 'userAvatarController', 'index', ['GET', 'POST']],
+            ['settings/remove_avatar', 'userAvatarController', 'remove'],
         ]);
     }
 

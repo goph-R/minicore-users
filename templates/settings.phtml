@@ -1,12 +1,9 @@
 <?php use_layout(':user/layout') ?>
 <?php start_block('user_content') ?>
-<h1><?= text('user', 'settings') ?></h1>
-<?php if ($userSession->hasFlash('settings_messages')): ?>
-    <?php foreach ($userSession->getFlash('settings_messages') as $message): ?>
-        <?= $this->fetch(':user/message-box', $message) ?>
-    <?php endforeach ?>
-<?php endif ?>
-<form action="<?= route_url('settings') ?>" method="post">
+<h1 class="title"><?= $title ?></h1>
+<?= $this->fetch(':user/settings-tabs', ['active' => $active]) ?>
+<?= $this->fetch(':user/settings-messages') ?>
+<form id="user_settings_form" action="<?= $action ?>" method="post" enctype="multipart/form-data">
     <?= $form->fetch() ?>
 </form>
 <?php end_block() ?>
