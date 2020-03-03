@@ -70,7 +70,7 @@ class UserSettingsController extends Controller {
         }
         $this->userService->changeFullName($user, $form->getValue('first_name'), $form->getValue('last_name'));
         $this->saveMessages[] = $this->getMessage('info', 'fullname_modify_success');
-        return false;
+        return true;
     }
 
     protected function saveEmail($form) {

@@ -32,6 +32,8 @@ class UserAvatarController extends Controller {
         if (!$form->processInput()) {
             return;
         }
+                
+        // TODO: put this part in a Validator
         /** @var UploadedFile $file */
         $file = $form->getValue('file');
         $error = null;
@@ -48,16 +50,17 @@ class UserAvatarController extends Controller {
             $this->userSession->setFlash('settings_messages', [$error]);
             return;
         }
+        //
+        
         $user = $this->userService->getCurrentUser();
         $this->userService->changeAvatar($user, $file->getTempPath());
         $user->save();
-        $this->userSession->setFlash('settings_messages', [$this->getMessage('info', 'avatar_modify_success')]);
     }
     
     private function getMessage($type, $text) {
         return [
             'type' => $type,
-            'text' => $this->translation->get('user', $text)
+            'text' => text('user', $text)
         ];
     }    
     

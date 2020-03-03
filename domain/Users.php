@@ -14,6 +14,8 @@ class Users {
     protected $dbInstanceName = 'database';
     protected $tableName = 'user';
     protected $recordClass = 'User';
+    
+    protected $cache = [];
 
     public function __construct(Framework $framework) {
         $this->framework = $framework;
@@ -39,12 +41,20 @@ class Users {
      * @param $id
      * @return User
      */
-    public function findById($id) {
-        return $this->db->fetch(
+    public function findById($id, $useCache=true) {
+        $id = (int)$id;
+        if ($useCache && isset($this->cache[$id])) {
+            return $this->cache[$id];
+        }
+        $result = $this->db->fetch(
             $this->recordClass,
             "SELECT * FROM {$this->tableName} WHERE id = :id LIMIT 1",
             [':id' => $id]
         );
+        if ($useCache) {
+            $this->cache[$id] = $result;
+        }
+        return $result;
     }
 
     /**
