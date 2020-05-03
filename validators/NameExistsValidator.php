@@ -5,8 +5,9 @@ class NameExistsValidator extends Validator {
     /** @var Users */
     private $users;
 
-    public function __construct(Framework $framework) {
-        parent::__construct($framework);
+    public function __construct() {
+        parent::__construct();
+        $framework = Framework::instance();
         $this->message = $this->translation->get('user', 'name_exists');
         $this->users = $framework->get('users');
     }

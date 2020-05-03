@@ -2,9 +2,6 @@
 
 class Permissions {
 
-    /** @var Framework */
-    protected $framework;
-
     /** @var Database */
     protected $db;
 
@@ -15,8 +12,8 @@ class Permissions {
     protected $tableName = 'permission';
     protected $recordClass = 'Permission';
 
-    public function __construct(Framework $framework) {
-        $this->framework = $framework;
+    public function __construct() {
+        $framework = Framework::instance();
         $this->db = $framework->get($this->dbInstanceName);
         $this->translation = $framework->get('translation');
     }

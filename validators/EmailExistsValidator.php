@@ -6,13 +6,14 @@ class EmailExistsValidator extends Validator {
     private $users;
     private $needToExists;
 
-    public function __construct(Framework $framework, $needToExists=false) {
-        parent::__construct($framework);
+    public function __construct($needToExists=false) {
+        parent::__construct();
         if ($needToExists) {
             $this->message = $this->translation->get('user', 'email_not_exists');
         } else {
             $this->message = $this->translation->get('user', 'email_exists');
         }
+        $framework = Framework::instance();
         $this->users = $framework->get('users');
         $this->needToExists = $needToExists;
     }

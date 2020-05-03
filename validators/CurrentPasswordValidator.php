@@ -9,8 +9,9 @@ class CurrentPasswordValidator extends Validator {
     /** @var UserService */
     private $userService;
     
-    public function __construct(Framework $framework) {
-        parent::__construct($framework);
+    public function __construct() {
+        parent::__construct();
+        $framework = Framework::instance();
         $this->userSession = $framework->get('userSession');
         $this->userService = $framework->get('userService');
         $this->message = $this->translation->get('user', 'current_password_mismatch');

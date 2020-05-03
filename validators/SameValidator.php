@@ -5,8 +5,8 @@ class SameValidator extends Validator {
     private $form;
     private $otherInputName;
 
-    public function __construct(Framework $framework, Form $form, $otherInputName) {
-        parent::__construct($framework);
+    public function __construct(Form $form, $otherInputName) {
+        parent::__construct();
         $this->message = $this->translation->get('user', 'didnt_match');
         $this->otherInputName = $otherInputName;
         $this->form = $form;

@@ -2,9 +2,6 @@
 
 class Users {
 
-    /** @var Framework */
-    protected $framework;
-
     /** @var Database */
     protected $db;
 
@@ -17,8 +14,8 @@ class Users {
     
     protected $cache = [];
 
-    public function __construct(Framework $framework) {
-        $this->framework = $framework;
+    public function __construct() {
+        $framework = Framework::instance();
         $this->config = $framework->get('config');
         $this->db = $framework->get($this->dbInstanceName);
     }
@@ -151,8 +148,9 @@ class Users {
      * @return User
      */
     public function create() {
+        $framework = Framework::instance();
         /** @var User $user */
-        $user = $this->framework->create($this->recordClass);
+        $user = $framework->create($this->recordClass);
         return $user;
     }
 

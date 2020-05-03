@@ -48,8 +48,8 @@ class UserService {
     /** @var User */
     protected $currentUser;
 
-    public function __construct(Framework $framework) {
-        $this->framework = $framework;
+    public function __construct() {
+        $framework = Framework::instance();
         $this->config = $framework->get('config');
         $this->router = $framework->get('router');
         $this->userSession = $framework->get('userSession');
@@ -108,14 +108,16 @@ class UserService {
         }
         $url = $this->router->getBaseUrl().$this->request->getUri();
         $this->setLoginRedirectUrl($url);
-        $this->framework->redirect('login');
+        $framework = Framework::instance();
+        $framework->redirect('login');
     }
     
     public function requirePermission($permission) {
         $this->requireLogin();
         $currentUser = $this->getCurrentUser();
         if (!$currentUser->hasPermission($permission)) {
-            $this->framework->error(403);
+            $framework = Framework::instance();
+            $framework->error(403);
         }
     }
     
@@ -288,7 +290,8 @@ class UserService {
      */
     public function createRegisterForm() {
         /** @var Form $form */
-        $form = $this->framework->create('Form', ['register']);
+        $framework = Framework::instance();
+        $form = $framework->create('Form', ['register']);
         $form->addInput(['user', 'name'], ['TextInput', 'name'], ['user', 'will_be_used_as_public']);
         $form->addValidator('name', 'NameExistsValidator');
         $form->addInput(['user', 'first_name'], ['TextInput', 'first_name']);
@@ -308,8 +311,9 @@ class UserService {
      * @return Form
      */
     public function createLoginForm() {
+        $framework = Framework::instance();
         /** @var Form $form */
-        $form = $this->framework->create('Form', ['login']);
+        $form = $framework->create('Form', ['login']);
         $emailInput = $form->addInput('Email', ['TextInput', 'email']);
         $emailInput->setAutocomplete(false);
         $form->addInput(['user', 'password'], ['PasswordInput', 'password']);
@@ -322,8 +326,9 @@ class UserService {
      * @return Form
      */
     public function createNewPasswordForm() {
+        $framework = Framework::instance();
         /** @var Form $form */
-        $form = $this->framework->create('Form', ['new_password']);
+        $form = $framework->create('Form', ['new_password']);
         $form->addInput(['user', 'password'], ['PasswordInput', 'password']);
         $form->addInput(['user', 'password_again'], ['PasswordInput', 'password_again']);
         $form->addValidator('password', 'PasswordValidator');
@@ -336,8 +341,9 @@ class UserService {
      * @return Form
      */
     public function createForgotForm() {
+        $framework = Framework::instance();
         /** @var Form $form */
-        $form = $this->framework->create('Form', ['forgot']);
+        $form = $framework->create('Form', ['forgot']);
         $emailInput = $form->addInput('Email', ['TextInput', 'email']);
         $emailInput->setAutocomplete(false);
         $form->addValidator('email', 'EmailValidator');
@@ -354,8 +360,9 @@ class UserService {
     public function createSettingsForm(User $user, $useEmailDescription=true) {
         // TODO: a post validator for the passwords
         $emailDescription = $this->getEmailDescription($user, $useEmailDescription);
+        $framework = Framework::instance();
         /** @var Form $form */
-        $form = $this->framework->create('Form', ['settings']);
+        $form = $framework->create('Form', ['settings']);
         $nameInput = $form->addInput(['user', 'name'], ['TextInput', 'name', $user->getName()], ['user', 'cant_modify']);
         $nameInput->setReadOnly(true);
         $form->setRequired('name', false);
@@ -380,7 +387,8 @@ class UserService {
     }
     
     public function createAvatarForm(User $user) {
-        $form = $this->framework->create('Form', ['avatar']);
+        $framework = Framework::instance();
+        $form = $framework->create('Form', ['avatar']);
         $params = [
             'size' => $this->getAvatarSize(),
             'max' => round($this->getAvatarMaxFileSize() / 1024 / 1024)

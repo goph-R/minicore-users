@@ -4,9 +4,6 @@ class Roles {
 
     const ADMINISTRATOR_ID = 1;
     
-    /** @var Framework */
-    protected $framework;
-
     /** @var Database */
     protected $db;
 
@@ -17,8 +14,8 @@ class Roles {
     protected $tableName = 'role';
     protected $recordClass = 'Role';
 
-    public function __construct(Framework $framework) {
-        $this->framework = $framework;
+    public function __construct() {
+        $framework = Framework::instance();
         $this->db = $framework->get($this->dbInstanceName);
         $this->translation = $framework->get('translation');
     }

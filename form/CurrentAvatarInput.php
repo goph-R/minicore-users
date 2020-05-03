@@ -10,8 +10,9 @@ class CurrentAvatarInput extends Input {
     
     protected $bind = false;
     
-    public function __construct(Framework $framework, $name, $defaultValue='') {
-        parent::__construct($framework, $name, $defaultValue);
+    public function __construct($name, $defaultValue='') {
+        parent::__construct($name, $defaultValue);
+        $framework = Framework::instance();
         $this->userService = $framework->get('userService');
         $this->view = $framework->get('view');
     }
