@@ -59,6 +59,7 @@ class UserService {
         $this->response = $framework->get('response');
         $this->users = $framework->get('users');
         $this->anonymousUser = $framework->create('User');
+        $this->anonymousUser->set('name', 'Anonymous');
         $this->rememberLogin();
     }
     
