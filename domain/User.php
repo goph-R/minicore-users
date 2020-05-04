@@ -106,7 +106,7 @@ class User extends Record {
     }
     
     public function removeHashByName($name) {
-        $query = "DELETE FROM user_hash WHERE user_id = :user_id AND name = :name LIMIT 1";
+        $query = "DELETE FROM user_hash WHERE user_id = :user_id AND name = :name";
         $this->db->query($query, [
             ':user_id' => $this->getId(),
             ':name' => $name
