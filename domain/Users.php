@@ -103,37 +103,30 @@ class Users {
      * @param $hash
      * @return User
      */
-    public function findByActivationHash($hash) {
-        return $this->db->fetch(
-            $this->recordClass,
-            "SELECT * FROM {$this->tableName} WHERE activation_hash = :hash LIMIT 1",
-            [':hash' => $hash]
-        );
+    public function findByHash($name, $hash) {
+        $query = "SELECT user_id FROM user_hash WHERE name = :name AND hash = :hash LIMIT 1";
+        $id = $this->db->fetchColumn($query, [
+            ':name' => $name,
+            ':hash' => $hash
+        ]);
+        if (!$id) {
+            return null;
+        }
+        return $this->findById($id);
     }
-
+    
     /**
      * @param $hash
      * @return User
      */
-    public function findByForgotHash($hash) {
-        return $this->db->fetch(
-            $this->recordClass,
-            "SELECT * FROM {$this->tableName} WHERE forgot_hash = :hash LIMIT 1",
-            [':hash' => $hash]
-        );
+    public function findActiveByHash($name, $hash) {
+        $user = $this->findByHash($name, $hash);
+        if (!$user || !$user->getActive()) {
+            return null;
+        }
+        return $user;
     }
-
-    /**
-     * @param $hash
-     * @return User
-     */
-    public function findActiveByRememberHash($hash) {
-        return $this->db->fetch(
-            $this->recordClass,
-            "SELECT * FROM {$this->tableName} WHERE remember_hash = :hash LIMIT 1",
-            [':hash' => $hash]
-        );
-    }
+    
 
     public function findByEmailExceptId($email, $exceptId) {
         return $this->db->fetch(

@@ -7,16 +7,26 @@ CREATE TABLE `user` (
     `password` CHAR(32) NOT NULL,
     `active` TINYINT(1) NOT NULL DEFAULT '0',
     `last_login` INT(11) NOT NULL DEFAULT '0',
-    `activation_hash` CHAR(32) NOT NULL DEFAULT '',
-    `forgot_hash` CHAR(32) NOT NULL DEFAULT '',
-    `remember_hash` CHAR(32) NOT NULL DEFAULT '',
     `new_email` CHAR(32) NOT NULL DEFAULT '',
-    `new_email_hash` CHAR(32) NOT NULL DEFAULT '',
     `avatar` CHAR(32) NOT NULL DEFAULT '',
     PRIMARY KEY (`id`)
 )
 COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB;
+
+CREATE TABLE `user_hash` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `user_id` INT(11) NOT NULL,
+    `name` CHAR(32) NOT NULL,
+    `hash` CHAR(32) NOT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `user_id_name` (`user_id`, `name`),
+    INDEX `name_hash` (`name`, `hash`),
+    CONSTRAINT `user_hash_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+;
 
 CREATE TABLE `role` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -94,5 +104,7 @@ DROP TABLE permission_text;
 DROP TABLE permission;
 DROP TABLE role_text;
 DROP TABLE role;
+DROP TABLE user_hash;
+DROP TABLE user;
 
 */

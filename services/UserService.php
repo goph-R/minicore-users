@@ -87,8 +87,8 @@ class UserService {
         return $this->users->findById($id);
     }
 
-    public function findByForgotHash($hash) {
-        return $this->users->findByForgotHash($hash);
+    public function findByForgotHash($hash) {        
+        return $this->users->findByHash('forgot', $hash);
     }
 
     public function rememberLogin() {
@@ -96,7 +96,7 @@ class UserService {
         if ($this->userSession->isLoggedIn() || !$rememberHash) {
             return;
         }
-        $user = $this->users->findActiveByRememberHash($rememberHash);
+        $user = $this->users->findActiveByHash('remember', $rememberHash);
         if (!$user) {
             return;
         }
@@ -137,7 +137,7 @@ class UserService {
         }
         if ($remember) {
             $hash = $this->hash(time());
-            $user->setRememberHash($hash);
+            $user->createHash('remember', $hash);
             $this->response->setCookie('remember_hash', $hash);
         }
         $this->doLogin($user);
@@ -177,8 +177,7 @@ class UserService {
         $id = $this->userSession->getId();
         $user = $this->users->findById($id);
         if ($user) {
-            $user->setRememberHash(null);
-            $user->save();
+            $user->removeHashByName('remember');
         }
         $this->request->setCookie('remember_hash', null);
         $this->userSession->destroy();
@@ -194,8 +193,8 @@ class UserService {
         $user = $this->users->create();
         $user->setArray($values, $fields);
         $user->setPassword($this->hashPassword($values['password']));
-        $user->setActivationHash($hash);
         $user->save();
+        $user->createHash('activation', $hash); // after save!
         return $user;
     }
 
@@ -213,13 +212,13 @@ class UserService {
     }
 
     public function activate($hash) {
-        $user = $this->users->findByActivationHash($hash);
+        $user = $this->users->findByHash('activation', $hash);
         if (!$user) {
             return false;
         }
-        $user->setActivationHash(null);
         $user->setActive(1);
         $user->save();
+        $user->removeHashByName('activation');
         return true;
     }
 
@@ -229,8 +228,8 @@ class UserService {
             return false;
         }
         $hash = $this->hash(time());
-        $user->setForgotHash($hash);
         $user->save();
+        $user->createHash('forgot', $hash);
         $this->mailer->init();
         $this->mailer->addAddress($email);
         $this->mailer->set('hash', $hash);
@@ -242,9 +241,9 @@ class UserService {
     }
 
     public function changeForgotPassword(User $user, $password) {
-        $user->setForgotHash(null);
         $user->setPassword($this->hashPassword($password));
         $user->save();
+        $user->removeHashByName('forgot');
     }
 
     public function changePassword(User $user, $password) {
@@ -259,7 +258,7 @@ class UserService {
     public function changeEmail(User $user, $email) {
         $hash = $this->hash($email);
         $user->setNewEmail($email);
-        $user->setNewEmailHash($hash);
+        $user->createHash('new_email', $hash);
         return $hash;
     }
 
@@ -274,15 +273,14 @@ class UserService {
     }
 
     public function activateNewEmail($id, $hash) {
-        $user = $this->users->findById($id);
-        if (!$user || $user->getNewEmailHash() != $hash) {
+        $user = $this->users->findActiveByHash('new_email', $hash);
+        if (!$user) {
             return false;
         }
-        $email = $user->getNewEmail();
+        $user->setEmail($user->getNewEmail());
         $user->setNewEmail(null);
-        $user->setNewEmailHash(null);
-        $user->setEmail($email);
         $user->save();
+        $user->removeHashByName('new_email');
         return true;
     }
 

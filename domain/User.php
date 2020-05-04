@@ -15,11 +15,7 @@ class User extends Record {
     protected $password;
     protected $active = 0;
     protected $last_login = 0;
-    protected $activation_hash = '';
-    protected $forgot_hash = '';
-    protected $remember_hash = '';
     protected $new_email = '';
-    protected $new_email_hash = '';
     protected $avatar = '';
     
     public function setActive($value) {
@@ -98,6 +94,23 @@ class User extends Record {
             return 'modules/minicore-users/static/default-avatar.png';
         }
         return $this->getAvatarPath();
+    }
+    
+    public function createHash($name, $hash) {
+        $userHash = new UserHash();
+        $userHash->setUserId($this->getId());
+        $userHash->setName($name);
+        $userHash->setHash($hash);
+        $userHash->save();
+        return $userHash;
+    }
+    
+    public function removeHashByName($name) {
+        $query = "DELETE FROM user_hash WHERE user_id = :user_id AND name = :name LIMIT 1";
+        $this->db->query($query, [
+            ':user_id' => $this->getId(),
+            ':name' => $name
+        ]);
     }
     
 }
