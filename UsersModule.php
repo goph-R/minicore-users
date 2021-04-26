@@ -21,6 +21,8 @@ class UsersModule extends Module {
     }
 
     public function init() {
+        parent::init();
+
         $framework = Framework::instance();
         
         /** @var View $view */

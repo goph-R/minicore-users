@@ -5,10 +5,10 @@ class UserService {
     const CONFIG_USERS_REGISTER_DISABLED = 'users.register_disabled';
     const CONFIG_LOGGED_IN_URL = 'users.logged_in_url';
     const CONFIG_LOGGED_OUT_URL = 'users.logged_out_url';
-    const CONFIG_SALT = "users.salt";
+    const CONFIG_SALT = 'users.salt';
 
     const CONFIG_AVATAR_SIZE = 'users.avatar_size';
-    const DEFAULT_AVATAR_SIZE = 128;
+    const DEFAULT_AVATAR_SIZE = 512;
     
     const CONFIG_AVATAR_MAX_FILE_SIZE = 'users.avatar_max_file_size';
     const DEFAULT_AVATAR_MAX_FILE_SIZE = 2*1024*1024; // 2MB

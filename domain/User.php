@@ -4,8 +4,12 @@ class User extends Record {
 
     protected $tableName = 'user';
     protected $referenceList = ['roles', 'permissions'];
+    protected $protectedList = ['app'];
     protected $roles = [];
     protected $permissions = [];
+
+    /** @var App */
+    protected $app;
     
     protected $id = 0;
     protected $name;
@@ -17,7 +21,12 @@ class User extends Record {
     protected $last_login = 0;
     protected $new_email = '';
     protected $avatar = '';
-    
+
+    public function __construct($dbInstanceName = null) {
+        parent::__construct($dbInstanceName);
+        $this->app = Framework::instance()->get('app');
+    }
+
     public function setActive($value) {
         $this->active = $value ? 1 : 0;
     }
@@ -82,7 +91,7 @@ class User extends Record {
         if ($avatar) {
             $prefix = $avatar[0].$avatar[1].'/'.$avatar[2].$avatar[3].'/';
         }
-        return 'upload/avatar/'.$prefix.$avatar.'.jpg';
+        return $this->app->getMediaPath().'avatar/'.$prefix.$avatar.'.jpg';
     }
     
     public function hasAvatar() {
@@ -91,7 +100,8 @@ class User extends Record {
     
     public function getAvatarUrl() {
         if (!$this->hasAvatar()) {
-            return 'modules/minicore-users/static/default-avatar.png';
+            $module = $this->app->getModule('minicore-users');
+            return $module->getUrl('static/default-avatar.png');
         }
         return $this->getAvatarPath();
     }
