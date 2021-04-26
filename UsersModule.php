@@ -5,8 +5,7 @@ class UsersModule extends Module {
     protected $id = 'minicore-users';
 
     public function __construct() {
-        $framework = Framework::instance();
-        $framework->add([
+        Framework::instance()->add([
             'users'                  => 'Users',
             'roles'                  => 'Roles',
             'permissions'            => 'Permissions',
@@ -26,11 +25,11 @@ class UsersModule extends Module {
         
         /** @var View $view */
         $view = $framework->get('view');
-        $view->addFolder(':user', 'modules/minicore-users/templates');
+        $view->addFolder(':user', $this->getFolder().'templates');
 
         /** @var Translation $translation */
         $translation = $framework->get('translation');
-        $translation->add('user', 'modules/minicore-users/translations');
+        $translation->add('user', $this->getFolder().'translations');
 
         /** @var Router $router */
         $router = $framework->get('router');

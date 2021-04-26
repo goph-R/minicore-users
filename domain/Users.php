@@ -2,6 +2,8 @@
 
 class Users {
 
+    const CONFIG_SALT = 'users.salt';
+
     /** @var Database */
     protected $db;
 
@@ -148,6 +150,10 @@ class Users {
     }
 
     public function hash($value) {
-        return md5($this->config->get('user.salt').$value);
+        $salt = $this->config->get(self::CONFIG_SALT);
+        if (!$salt) {
+            throw new RuntimeException("'".self::CONFIG_SALT."' has no value in configuration.");
+        }
+        return md5($salt.$value);
     }
 }
