@@ -87,23 +87,31 @@ class User extends Record {
         
     public function getAvatarPath() {
         $avatar = $this->getAvatar();
+        $prefix = $this->getAvatarPrefix($avatar);
+        return $this->app->getMediaPath('avatar/'.$prefix.$avatar.'.jpg');
+    }
+
+    private function getAvatarPrefix($avatar) {
         $prefix = '';
         if ($avatar) {
             $prefix = $avatar[0].$avatar[1].'/'.$avatar[2].$avatar[3].'/';
         }
-        return $this->app->getMediaPath().'avatar/'.$prefix.$avatar.'.jpg';
+        return $prefix;
     }
-    
+
+
     public function hasAvatar() {
         return file_exists($this->getAvatarPath());
     }
     
     public function getAvatarUrl() {
+        $module = $this->app->getModule('minicore-users');
         if (!$this->hasAvatar()) {
-            $module = $this->app->getModule('minicore-users');
             return $module->getUrl('static/default-avatar.png');
         }
-        return $this->getAvatarPath();
+        $avatar = $this->getAvatar();
+        $prefix = $this->getAvatarPrefix($avatar);
+        return $this->app->getMediaUrl('avatar/'.$prefix.$avatar.'.jpg');
     }
     
     public function createHash($name, $hash) {

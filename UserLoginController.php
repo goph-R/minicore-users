@@ -21,7 +21,7 @@ class UserLoginController extends Controller {
             $password = $form->getValue('password');
             $remember = $form->getValue('remember');
             if ($this->userService->login($email, $password, $remember)) {
-                $redirectUrl = $this->userService->getLoginRedirectUrl();
+                $redirectUrl = null; //$this->userService->getLoginRedirectUrl();
                 $this->userService->setLoginRedirectUrl(null);
                 $this->redirect($redirectUrl ? $redirectUrl : $this->userService->getLoggedInUrl());        
             } else {

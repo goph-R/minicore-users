@@ -21,8 +21,8 @@ class UserRegisterController extends Controller {
         $form = $this->userService->createRegisterForm();
         if ($form->processInput()) {
             $values = $form->getValues();
-            $user = $this->userService->register($values);
-            if ($this->userService->sendRegisterEmail($values, $user->get('activation_hash'))) {
+            $hash = $this->userService->register($values);
+            if ($this->userService->sendRegisterEmail($values, $hash)) {
                 $this->redirect('register/activation');
             }
             $form->addError($this->translation->get('user', 'couldnt_send_email'));

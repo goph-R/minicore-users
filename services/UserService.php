@@ -196,7 +196,7 @@ class UserService {
         $user->setPassword($this->hashPassword($values['password']));
         $user->save();
         $user->createHash('activation', $hash); // after save!
-        return $user;
+        return $hash;
     }
 
     public function sendRegisterEmail($values, $hash) {

@@ -37,7 +37,7 @@ class CurrentAvatarInput extends Input {
             $link = '<p style="margin-bottom: 1rem"><a id="avatar_remove_link" href="'.$removeUrl.'">'.$icon.$text.'</a></p>';
         }
 
-        $this->view->addScript($this->module->getFolder().'static/current-avatar-input.js');
+        $this->view->addScript($this->module->getUrl().'static/current-avatar-input.js');
         $this->view->startBlock('scripts');
         $this->view->write('<script>createCurrentAvatarInput("'.text('user', 'confirm_remove').'")</script>');
         $this->view->endBlock();

@@ -10,11 +10,13 @@ function createCurrentAvatarInput(confirmText) {
         const settingsForm = document.getElementById('user_settings_form');
         settingsForm.submit();
     });
-    
-    avatarRemoveLink.addEventListener('click', function(event) {
-        event.preventDefault();
-        if (confirm(confirmText)) {
-            location.href = avatarRemoveLink.getAttribute('href');
-        }
-    });    
+
+    if (avatarRemoveLink) {
+        avatarRemoveLink.addEventListener('click', function (event) {
+            event.preventDefault();
+            if (confirm(confirmText)) {
+                location.href = avatarRemoveLink.getAttribute('href');
+            }
+        });
+    }
 }

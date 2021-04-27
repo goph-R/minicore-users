@@ -2,10 +2,13 @@
 
 class UsersModule extends Module {
 
+    /** @var Framework */
+    protected $framework;
     protected $id = 'minicore-users';
 
     public function __construct() {
-        Framework::instance()->add([
+        $this->framework = Framework::instance();
+        $this->framework->add([
             'users'                  => 'Users',
             'roles'                  => 'Roles',
             'permissions'            => 'Permissions',
@@ -23,18 +26,16 @@ class UsersModule extends Module {
     public function init() {
         parent::init();
 
-        $framework = Framework::instance();
-        
         /** @var View $view */
-        $view = $framework->get('view');
+        $view = $this->framework->get('view');
         $view->addFolder(':user', $this->getFolder().'templates');
 
         /** @var Translation $translation */
-        $translation = $framework->get('translation');
+        $translation = $this->framework->get('translation');
         $translation->add('user', $this->getFolder().'translations');
 
         /** @var Router $router */
-        $router = $framework->get('router');
+        $router = $this->framework->get('router');
         $router->add([
             ['register', 'userRegisterController', 'index', ['GET', 'POST']],
             ['register/activation', 'userRegisterController', 'activation'],
